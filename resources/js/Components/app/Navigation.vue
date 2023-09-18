@@ -9,7 +9,7 @@
         <div class="px-3">
             <CreateNewDropdown/>
             <div class="py-4">
-                <NavLink :href="route('myFiles')" :active="$page.url == '/my-files'">My File</NavLink>
+                <NavLink :href="route('myFiles')" :active="route().current('myFiles')">My File</NavLink>
                 <NavLink href="/">Shared with me</NavLink>
                 <NavLink href="/">Share by me</NavLink>
                 <NavLink href="/">Trash</NavLink>
