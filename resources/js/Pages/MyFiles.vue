@@ -1,5 +1,5 @@
 <template>
-    <Head title="Dashboard" />
+    <Head title="My Files" />
 
     <AuthenticatedLayout>
         {{ $page.url }}
@@ -7,5 +7,6 @@
 </template>
 
 <script setup>
+import { Head } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 </script>

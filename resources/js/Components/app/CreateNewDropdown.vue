@@ -32,14 +32,14 @@
             </MenuItems>
         </transition>
     </Menu>
-    <!-- <CreateFolderModal v-model="createFolderModal" /> -->
+    <CreateFolderModal :modalValue="createFolderModal" />
 </template>
 
 <script setup>
 // Imports
-import {Menu, MenuButton, MenuItem, MenuItems} from "@headlessui/vue";
-// import CreateFolderModal from "@/Components/app/CreateFolderModal.vue";
 import { ref } from "vue";
+import {Menu, MenuButton, MenuItem, MenuItems} from "@headlessui/vue";
+import CreateFolderModal from "@/Components/app/CreateFolderModal.vue";
 import FileUploadMenuItem from "@/Components/app/FileUploadMenuItem.vue";
 import FolderUploadMenuItem from "@/Components/app/FolderUploadMenuItem.vue";
 
