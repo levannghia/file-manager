@@ -1,5 +1,5 @@
 <template>
-  <modal :show="modalValue" maxWidth="sm" @show="onShow"> 
+  <modal :show="modalValue" maxWidth="sm" @show="onShow">
      <div class="p-6">
             <h2 class="text-lg font-medium text-gray-900">
                 Create New Folder
@@ -48,6 +48,8 @@ const props = defineProps({
 
 const { modalValue } = toRefs(props);
 
+const emit = defineEmits(['update:modalValue'])
+
 const form = useForm({
     name: '',
 })
@@ -77,7 +79,7 @@ function closeModal() {
     form.reset();
 }
 
-const emit = defineEmits(['update:modalValue'])
+
 
 </script>
 

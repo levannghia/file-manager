@@ -32,7 +32,7 @@
             </MenuItems>
         </transition>
     </Menu>
-    <CreateFolderModal :modalValue="createFolderModal" />
+    <CreateFolderModal v-model:modalValue="createFolderModal" />
 </template>
 
 <script setup>
