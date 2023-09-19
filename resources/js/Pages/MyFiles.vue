@@ -16,7 +16,7 @@
                     <th class="text-sm font-medium text-gray-900 px-6 py-4 text-left">
                         Name
                     </th>
-                    <th class="text-sm font-medium text-gray-900 px-6 py-4 text-left">
+                    <th v-if="search" class="text-sm font-medium text-gray-900 px-6 py-4 text-left">
                         Path
                     </th>
                     <th class="text-sm font-medium text-gray-900 px-6 py-4 text-left">
@@ -32,13 +32,11 @@
                 </thead>
                 <tbody>
                 <tr v-for="file of allFiles.data" :key="file.id"
-
-
                     class="border-b transition duration-300 ease-in-out hover:bg-blue-100 cursor-pointer">
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 w-[30px] max-w-[30px] pr-0">
                         <Checkbox/>
                     </td>
-                    <td class="px-6 py-4 max-w-[40px] text-sm font-medium text-gray-900 text-yellow-500">
+                    <td class="px-6 py-4 max-w-[40px] text-sm font-medium text-gray-900">
                         <div>
                             <svg v-if="!file.is_favourite" xmlns="http://www.w3.org/2000/svg" fill="none"
                                  viewBox="0 0 24 24" stroke-width="1.5"
@@ -59,7 +57,7 @@
                         <!-- <FileIcon :file="file"/> -->
                         {{ file.name }}
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                    <td v-if="search" class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                         {{ file.path }}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
@@ -84,10 +82,13 @@
 </template>
 
 <script setup>
-import { Head } from '@inertiajs/vue3';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import { Head, Link, router, useForm, usePage } from '@inertiajs/vue3';
+import {HomeIcon} from '@heroicons/vue/20/solid'
+import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import { ref } from 'vue';
+import Checkbox from "@/Components/Checkbox.vue";
 
+const page = usePage();
 // Props & Emit
 const props = defineProps({
     files: Object,
