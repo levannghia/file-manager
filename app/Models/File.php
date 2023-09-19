@@ -6,6 +6,7 @@ use App\Traits\HasCreatorAndUpdater;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Auth;
 use Kalnoy\Nestedset\NodeTrait;
 use Illuminate\Support\Str;
 
@@ -19,6 +20,11 @@ class File extends Model
 
     public function parent() {
         return $this->belongsTo(File::class, 'parent_id');
+    }
+
+    public function getOwnerAttribute($value)
+    {
+        return $this->attributes['created_by'] == Auth::id() ? 'me' : $this->user->name;
     }
 
     public function isOwnedBy($userId): bool

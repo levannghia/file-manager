@@ -41,10 +41,12 @@ import SecondaryButton from "@/Components/SecondaryButton.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
 
 const folderNameInput = ref(null)
-
+const page = usePage()
 const props = defineProps({
   modalValue: Boolean,
 });
+
+console.log(page.props);
 
 const { modalValue } = toRefs(props);
 
@@ -52,6 +54,7 @@ const emit = defineEmits(['update:modalValue'])
 
 const form = useForm({
     name: '',
+    parent_id: null
 })
 
 function onShow() {
@@ -61,6 +64,7 @@ function onShow() {
 }
 
 function createFolder() {
+    form.parent_id = page.props.folder.id
     form.post(route('folder.create'), {
         preserveScroll: true,
         onSuccess: () => {

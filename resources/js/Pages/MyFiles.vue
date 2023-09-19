@@ -32,6 +32,7 @@
                 </thead>
                 <tbody>
                 <tr v-for="file of allFiles.data" :key="file.id"
+                    @dblclick="openFolder(file)"
                     class="border-b transition duration-300 ease-in-out hover:bg-blue-100 cursor-pointer">
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 w-[30px] max-w-[30px] pr-0">
                         <Checkbox/>
@@ -105,4 +106,11 @@ const allFiles = ref({
 })
 const loadMoreIntersect = ref(null)
 
+function openFolder(file){
+    if(!file.is_folder){
+        return;
+    }
+
+    router.visit(route('myFiles', {folder: file.path}))
+}
 </script>
