@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreFileRequest;
 use App\Http\Requests\StoreFolderRequest;
 use App\Http\Resources\FileResource;
 use App\Models\File;
@@ -49,6 +50,12 @@ class FileController extends Controller
         $file->name = $data['name'];
 
         $parent->appendNode($file);
+    }
+
+    public function store(StoreFileRequest $request) {
+        $data = $request->validated();
+        $fileTree = $request->file_tree;
+        dd($data, $fileTree);
     }
 
     public function getBoot()

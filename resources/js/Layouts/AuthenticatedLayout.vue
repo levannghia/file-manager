@@ -21,12 +21,18 @@
 
 <script setup>
 import { onMounted, ref } from 'vue';
-import { Link } from '@inertiajs/vue3';
+import { Link, useForm, usePage } from '@inertiajs/vue3';
 import Navigation from '@/Components/app/Navigation.vue';
 import SearchForm from '@/Components/app/SearchForm.vue';
 import UserSettingDropdown from '@/Components/app/UserSettingDropdown.vue';
 import { emitter, FILE_UPLOAD_STARTED } from '@/event-bus.js';
 
+const page = usePage()
+const fileUploadForm = useForm({
+    files: [],
+    relative_paths: [],
+    parent_id: null
+})
 const dragOver = ref(false)
 
 function onDragOver() {
@@ -50,10 +56,15 @@ function handleDrop(ev) {
 
 function uploadFiles(files) {
     console.log("files", files);
+    fileUploadForm.parent_id = page.props.folder.id
+    fileUploadForm.relative_paths = [...files].map(f => f.webkitRelativePath)
+    fileUploadForm.files = files
+
+    fileUploadForm.post(route('file.store'));
 }
 
 onMounted(() => {
-    emitter.on(FILE_UPLOAD_STARTED, uploadFiles());
+    emitter.on(FILE_UPLOAD_STARTED, uploadFiles)
 })
 </script>
 <style scoped>

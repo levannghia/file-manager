@@ -10,7 +10,7 @@
 <script setup>
 // Imports
 import {MenuItem} from "@headlessui/vue";
-// import {emitter, FILE_UPLOAD_STARTED} from "@/event-bus.js";
+import {emitter, FILE_UPLOAD_STARTED} from "@/event-bus.js";
 
 // Uses
 
@@ -22,7 +22,7 @@ import {MenuItem} from "@headlessui/vue";
 
 // Methods
 function onChange(ev){
-
+    emitter.emit(FILE_UPLOAD_STARTED, ev.target.files)
 }
 
 // Hooks
