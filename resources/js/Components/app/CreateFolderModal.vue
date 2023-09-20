@@ -46,7 +46,7 @@ const props = defineProps({
   modalValue: Boolean,
 });
 
-console.log(page.props);
+// console.log(page.props);
 
 const { modalValue } = toRefs(props);
 

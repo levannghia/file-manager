@@ -13,11 +13,9 @@ class FileController extends Controller
 {
     public function myFiles(string $folder = null)
     {
-        
+
         if($folder){
             $folder = File::query()->where('created_by', Auth::id())->where('path', $folder)->firstOrFail();
-            
-        // dd($folder);
         }
 
         if(!$folder){
@@ -30,7 +28,11 @@ class FileController extends Controller
             ->orderBy('created_at', 'desc')
             ->paginate(10);
         $files = FileResource::collection($files);
-        return Inertia::render('MyFiles', compact('files', 'folder'));
+
+        $ancestors = FileResource::collection([...$folder->ancestors, $folder]);
+        $folder = new FileResource($folder);
+      
+        return Inertia::render('MyFiles', compact('files', 'folder', 'ancestors'));
     }
 
     public function createFolder(StoreFolderRequest $request)
