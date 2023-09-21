@@ -15,11 +15,11 @@ class FileController extends Controller
     public function myFiles(string $folder = null)
     {
 
-        if($folder){
+        if ($folder) {
             $folder = File::query()->where('created_by', Auth::id())->where('path', $folder)->firstOrFail();
         }
 
-        if(!$folder){
+        if (!$folder) {
             $folder = $this->getBoot();
         }
 
@@ -32,7 +32,7 @@ class FileController extends Controller
 
         $ancestors = FileResource::collection([...$folder->ancestors, $folder]);
         $folder = new FileResource($folder);
-      
+
         return Inertia::render('MyFiles', compact('files', 'folder', 'ancestors'));
     }
 
@@ -52,10 +52,54 @@ class FileController extends Controller
         $parent->appendNode($file);
     }
 
-    public function store(StoreFileRequest $request) {
+    public function store(StoreFileRequest $request)
+    {
         $data = $request->validated();
         $fileTree = $request->file_tree;
-        dd($data, $fileTree);
+        $user = $request->user();
+        $parent = $request->parent;
+
+        if (!$parent) {
+            $parent = $this->getBoot();
+        }
+
+        if (!empty($fileTree)) {
+            $this->saveFileTree($fileTree, $parent, $user);
+        } else {
+            foreach ($data['files'] as $key => $file) {
+                $this->saveFile($file, $parent, $user);
+            }
+        }
+
+        // dd($data, $parent);
+    }
+
+    public function saveFileTree($fileTree, $parent, $user)
+    {
+        foreach ($fileTree as $name => $file) {
+            if (is_array($file)) {
+                $folder = new File();
+                $folder->is_folder = 1;
+                $folder->name = $name;
+                $parent->appendNode($folder);
+
+                $this->saveFileTree($file, $folder, $user);
+            } else {
+                $this->saveFile($file, $parent, $user);
+            }
+        }
+    }
+
+    public function saveFile($file, $parent, $user)
+    {
+        $path = $file->store('/files/' . $user->id);
+        $model = new File();
+        $model->storage_path = $path;
+        $model->is_folder = false;
+        $model->name = $file->getClientOriginalName();
+        $model->mime = $file->getMimeType();
+        $model->size = $file->getSize();
+        $parent->appendNode($model);
     }
 
     public function getBoot()

@@ -16,6 +16,54 @@ class ProfileController extends Controller
     /**
      * Display the user's profile form.
      */
+
+    public function test()
+    {
+        $filePaths = [
+            "Saved Pictures/Captu.PNG",
+            "Saved Pictures/Capture.PNG",
+            "Saved Pictures/Capture1.PNG",
+            "Saved Pictures/Login.PNG",
+            "Saved Pictures/tranglayteamplateweb.PNG",
+            "Saved Pictures/Logo/logo.PNG",
+            "Saved Pictures/khung/1-01.png",
+            "Saved Pictures/khung/2-01.png",
+            "Saved Pictures/khung/3-01.png",
+            "Saved Pictures/khung/4-01.png",
+        ];
+
+        $files = [
+            "Captu.PNG",
+            "Capture.PNG",
+            "Capture1.PNG",
+            "Login.PNG",
+            "tranglayteamplateweb.PNG",
+            "logo.PNG",
+            "1-01.png",
+            "2-01.png",
+            "3-01.png",
+            "4-01.png",
+        ];
+        $tree = [];
+
+        foreach ($filePaths as $key => $value) {
+            $parts = explode('/', $value);
+            $currentNode = &$tree;
+            foreach ($parts as $i => $part) {
+                if(!isset($currentNode[$part])){
+                    $currentNode[$part] = [];
+                }
+
+                if($i === count($parts) - 1){
+                    $currentNode[$part] = $files[$key];
+                }else{
+                    $currentNode = &$currentNode[$part];
+                }
+            }
+        }
+        dump($tree);
+    }
+
     public function edit(Request $request): Response
     {
         return Inertia::render('Profile/Edit', [

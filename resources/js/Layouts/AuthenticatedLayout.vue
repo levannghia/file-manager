@@ -9,7 +9,7 @@
             <template v-else>
                 <div class="flex items-center justify-between w-full">
                     <SearchForm />
-                    <UserSettingsDropdown />
+                    <UserSettingDropdown />
                 </div>
                 <div class="flex-1 flex flex-col overflow-hidden">
                     <slot />
