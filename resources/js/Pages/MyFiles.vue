@@ -87,7 +87,7 @@
                         </div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 flex items-center">
-                        <!-- <FileIcon :file="file"/> -->
+                        <FileIcon :file="file"/>
                         {{ file.name }}
                     </td>
                     <td v-if="search" class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
@@ -118,8 +118,9 @@
 import { Head, Link, router, useForm, usePage } from '@inertiajs/vue3';
 import {HomeIcon} from '@heroicons/vue/20/solid'
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
-import { ref } from 'vue';
+import { ref, onUpdated } from 'vue';
 import Checkbox from "@/Components/Checkbox.vue";
+import FileIcon from "@/Components/app/FileIcon.vue";
 
 const page = usePage();
 // Props & Emit
@@ -145,4 +146,12 @@ function openFolder(file){
 
     router.visit(route('myFiles', {folder: file.path}))
 }
+
+// Hooks
+onUpdated(() => {
+    allFiles.value = {
+        data: props.files.data,
+        next: props.files.links.next
+    }
+})
 </script>

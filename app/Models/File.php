@@ -27,6 +27,13 @@ class File extends Model
         return $this->attributes['created_by'] == Auth::id() ? 'me' : $this->user->name;
     }
 
+    public function getFileSize(){
+        $units = ['B', 'KB', 'MB', 'GB', 'TB'];
+        $power = $this->size > 0 ? floor(log($this->size, 1024)) : 0;
+
+        return number_format($this->size / pow(1024, $power), 2, '.', ','). ' ' . $units[$power];
+    }
+
     public function isOwnedBy($userId): bool
     {
         return $this->created_by == $userId;
