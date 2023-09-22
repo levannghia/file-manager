@@ -25,22 +25,23 @@
                 </li>
             </ol>
 
-            <!-- <div class="flex">
+            <div class="flex">
                 <label class="flex items-center mr-3">
                     Only Favourites
-                    <Checkbox @change="showOnlyFavourites"  v-model:checked="onlyFavourites" class="ml-2"/>
+                    <!-- <Checkbox @change="showOnlyFavourites"  v-model:checked="onlyFavourites" class="ml-2"/> -->
                 </label>
-                <ShareFilesButton :all-selected="allSelected" :selected-ids="selectedIds" />
-                <DownloadFilesButton :all="allSelected" :ids="selectedIds" class="mr-2"/>
+                <!-- <ShareFilesButton :all-selected="allSelected" :selected-ids="selectedIds" />
+                <DownloadFilesButton :all="allSelected" :ids="selectedIds" class="mr-2"/> -->
                 <DeleteFilesButton :delete-all="allSelected" :delete-ids="selectedIds" @delete="onDelete"/>
-            </div> -->
+            </div>
         </nav>
         <div class="flex-1 overflow-auto">
+            <pre>{{selectedIds}}</pre>
             <table class="min-w-full">
                 <thead class="bg-gray-100 border-b">
                 <tr>
                     <th class="text-sm font-medium text-gray-900 px-6 py-4 text-left w-[30px] max-w-[30px] pr-0">
-                        <Checkbox @change="onSelectAllChange()" :checked="allSelected"/>
+                        <Checkbox @change="onSelectAllChange()" v-model="allSelected" :checked="allSelected"/>
                     </th>
                     <th class="text-sm font-medium text-gray-900 px-6 py-4 text-left">
 
@@ -64,10 +65,12 @@
                 </thead>
                 <tbody>
                 <tr v-for="file of allFiles.data" :key="file.id"
+                    @click="toggleFileSelect(file)"
                     @dblclick="openFolder(file)"
-                    class="border-b transition duration-300 ease-in-out hover:bg-blue-100 cursor-pointer">
+                    class="border-b transition duration-300 ease-in-out hover:bg-blue-100 cursor-pointer"
+                    :class="(selected[file.id] || allSelected) ? 'bg-blue-50' : 'bg-white'">
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 w-[30px] max-w-[30px] pr-0">
-                        <Checkbox :checked="selected[file.id] || allSelected" v-model="selected[file.id]"/>
+                        <Checkbox @change="$event => onSelectCheckboxChange(file)" :checked="selected[file.id] || allSelected" v-model="selected[file.id]"/>
                     </td>
                     <td class="px-6 py-4 max-w-[40px] text-sm font-medium text-gray-900">
                         <div>
@@ -118,9 +121,10 @@
 import { Head, Link, router, useForm, usePage } from '@inertiajs/vue3';
 import {HomeIcon} from '@heroicons/vue/20/solid'
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
-import { ref, onUpdated, onMounted } from 'vue';
+import { ref, onUpdated, onMounted, computed } from 'vue';
 import {httpGet, httpPost} from "@/Helper/http-helper";
 import Checkbox from "@/Components/Checkbox.vue";
+import DeleteFilesButton from "@/Components/app/DeletedFilesButton.vue";
 import FileIcon from "@/Components/app/FileIcon.vue";
 
 const page = usePage();
@@ -142,14 +146,35 @@ const allFiles = ref({
     next: props.files.links.next
 })
 
-function selecteFile(){
-
-}
+const selectedIds = computed(() => Object.entries(selected.value).filter(a => a[1]).map(a => a[0]))
 
 function onSelectAllChange() {
-    allSelected.value = !allSelected.value
+    allFiles.value.data.forEach(f => {
+        selected.value[f.id] = allSelected.value
+    })
 }
 
+function toggleFileSelect(file) {
+    selected.value[file.id] = !selected.value[file.id]
+    onSelectCheckboxChange(file);
+}
+
+function onSelectCheckboxChange(file){
+    if(!selected.value[file.id]){
+        allSelected.value = false;
+    }else{
+        let checked = true;
+
+        for (let file of allFiles.value.data) {
+            if(!selected.value[file.id]){
+                checked = false;
+                break;
+            }
+        }
+
+        allSelected.value = checked
+    }
+}
 function openFolder(file){
     if(!file.is_folder){
         return;
@@ -169,6 +194,10 @@ function loadMore() {
         allFiles.value.data = [...allFiles.value.data, ...res.data];
         allFiles.value.next = res.links.next;
     });
+}
+
+function onDelete(){
+    
 }
 
 // Hooks
