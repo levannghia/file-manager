@@ -109,4 +109,27 @@ class StoreFileRequest extends ParentIdBaseRequest
         $parts = explode('/', $paths[0]);
         return $parts[0];
     }
+
+
+    // private function buildFileTree($filePaths, $files)
+    // {
+    //     $filePaths = array_slice($filePaths, 0, count($files));
+    //     $filePaths = array_filter($filePaths, fn ($f) => $f != null);
+
+    //     $tree = [];
+    //     $currentNode = [];
+    //     foreach ($filePaths as $ind => $filePath) {
+    //         $parts = explode('/', $filePath);
+    //         $currentNode = &$tree;
+    //         foreach ($parts as $i => $part) {
+    //             if (!isset($currentNode[$part])) {
+    //                 $currentNode[$part] = [];
+    //             }
+    //             $currentNode = &$currentNode[$part];
+    //         }
+    //         $currentNode = $files[$ind];
+    //     }
+
+    //     return $tree;
+    // }
 }

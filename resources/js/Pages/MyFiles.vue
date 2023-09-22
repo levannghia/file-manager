@@ -7,7 +7,7 @@
                 <li v-for="ans of ancestors.data" :key="ans.id" class="inline-flex items-center">
                     <Link v-if="!ans.parent_id" :href="route('myFiles')"
                           class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-400 dark:hover:text-white">
-                        <HomeIcon class="w-4 h-4"/>
+                        <HomeIcon class="w-4 h-4 mr-[6px]"/>
                         My Files
                     </Link>
                     <div v-else class="flex items-center">
@@ -40,7 +40,7 @@
                 <thead class="bg-gray-100 border-b">
                 <tr>
                     <th class="text-sm font-medium text-gray-900 px-6 py-4 text-left w-[30px] max-w-[30px] pr-0">
-                        <Checkbox/>
+                        <Checkbox @change="onSelectAllChange()" :checked="allSelected"/>
                     </th>
                     <th class="text-sm font-medium text-gray-900 px-6 py-4 text-left">
 
@@ -67,7 +67,7 @@
                     @dblclick="openFolder(file)"
                     class="border-b transition duration-300 ease-in-out hover:bg-blue-100 cursor-pointer">
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 w-[30px] max-w-[30px] pr-0">
-                        <Checkbox/>
+                        <Checkbox :checked="selected[file.id] || allSelected" v-model="selected[file.id]"/>
                     </td>
                     <td class="px-6 py-4 max-w-[40px] text-sm font-medium text-gray-900">
                         <div>
@@ -118,7 +118,8 @@
 import { Head, Link, router, useForm, usePage } from '@inertiajs/vue3';
 import {HomeIcon} from '@heroicons/vue/20/solid'
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
-import { ref, onUpdated } from 'vue';
+import { ref, onUpdated, onMounted } from 'vue';
+import {httpGet, httpPost} from "@/Helper/http-helper";
 import Checkbox from "@/Components/Checkbox.vue";
 import FileIcon from "@/Components/app/FileIcon.vue";
 
@@ -130,14 +131,24 @@ const props = defineProps({
     ancestors: Object
 })
 
-let search = ref('');
-let params = null;
+let search = ref('')
+let params = null
+const loadMoreIntersect = ref(null)
+const allSelected = ref(false)
+const selected = ref({})
 
 const allFiles = ref({
     data: props.files.data,
     next: props.files.links.next
 })
-const loadMoreIntersect = ref(null)
+
+function selecteFile(){
+
+}
+
+function onSelectAllChange() {
+    allSelected.value = !allSelected.value
+}
 
 function openFolder(file){
     if(!file.is_folder){
@@ -147,7 +158,35 @@ function openFolder(file){
     router.visit(route('myFiles', {folder: file.path}))
 }
 
+function loadMore() {
+    console.log("Load more");
+
+    if (allFiles.value.next === null) {
+        return
+    }
+
+    httpGet(allFiles.value.next).then(res => {
+        allFiles.value.data = [...allFiles.value.data, ...res.data];
+        allFiles.value.next = res.links.next;
+    });
+}
+
 // Hooks
+onMounted(() => {
+    const observer = new IntersectionObserver((entries) =>{
+        entries.forEach(entrie => {
+            if(entrie.isIntersecting){
+                loadMore();
+            }
+        });
+    },
+    {
+        rootMargin: "-250px 0px 0px 0px"
+    })
+
+    observer.observe(loadMoreIntersect.value);
+})
+
 onUpdated(() => {
     allFiles.value = {
         data: props.files.data,

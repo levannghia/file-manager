@@ -30,11 +30,13 @@ Route::controller(FileController::class)->middleware(['auth', 'verified'])->grou
     Route::get('/my-files/{folder?}', 'myFiles')->where('folder', '(.*)')->name('myFiles');
     Route::post('/folder/create', 'createFolder')->name('folder.create');
     Route::post('/file', 'store')->name('file.store');
+    Route::delete('/file', 'destroy')->name('file.destroy');
 });
 
-// Route::get('/dashboard', function () {
-//     return Inertia::render('Dashboard');
-// })->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/dashboard', function () {
+    // return Inertia::render('Dashboard');
+    phpinfo();
+})->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

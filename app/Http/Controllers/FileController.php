@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\DestroyFileRequest;
 use App\Http\Requests\StoreFileRequest;
 use App\Http\Requests\StoreFolderRequest;
 use App\Http\Resources\FileResource;
@@ -12,7 +13,7 @@ use Inertia\Inertia;
 
 class FileController extends Controller
 {
-    public function myFiles(string $folder = null)
+    public function myFiles(Request $request, string $folder = null)
     {
 
         if ($folder) {
@@ -27,8 +28,12 @@ class FileController extends Controller
             ->where('created_by', Auth::id())
             ->orderBy('is_folder', 'desc')
             ->orderBy('created_at', 'desc')
-            ->paginate(10);
+            ->paginate(12);
         $files = FileResource::collection($files);
+
+        if ($request->wantsJson()) {
+            return $files;
+        }
 
         $ancestors = FileResource::collection([...$folder->ancestors, $folder]);
         $folder = new FileResource($folder);
@@ -100,6 +105,25 @@ class FileController extends Controller
         $model->mime = $file->getMimeType();
         $model->size = $file->getSize();
         $parent->appendNode($model);
+    }
+
+    public function destroy(DestroyFileRequest $request) {
+        $data = $request->validated();
+        $parent = $request->parent;
+
+        if($data['all']){
+            $children = $parent->children();
+            foreach ($children as $child) {
+                $child->delete();
+            }
+        }else{
+            foreach ($data['ids'] ?? [] as $id) {
+                $file = File::find($id);
+                $file->delete();
+            }
+        }
+        dd($request->all());
+        return redirect()->route('myFiles', ['folder' => $parent->path]);
     }
 
     public function getBoot()
