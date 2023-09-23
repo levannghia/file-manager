@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\FileActionRequest;
 use App\Http\Requests\StoreFileRequest;
 use App\Http\Requests\StoreFolderRequest;
+use App\Http\Requests\TrashFileRequest;
 use App\Http\Resources\FileResource;
 use App\Models\File;
 use Illuminate\Http\Request;
@@ -41,6 +42,12 @@ class FileController extends Controller
         $folder = new FileResource($folder);
 
         return Inertia::render('MyFiles', compact('files', 'folder', 'ancestors'));
+    }
+
+    public function trash(){
+        $files = File::onlyTrashed()->where('created_by', Auth::id())->orderBy('is_folder', 'desc')->orderBy('deleted_at', 'desc')->paginate(12);
+        $files = FileResource::collection($files);
+        return Inertia::render('Trash', compact('files'));
     }
 
     public function createFolder(StoreFolderRequest $request)
@@ -162,13 +169,13 @@ class FileController extends Controller
         if ($data['all']) {
             $children = $parent->children;
             foreach ($children as $child) {
-                $child->delete();
+                $child->moveToTrash();
             }
         } else {
             foreach ($data['ids'] ?? [] as $id) {
                 $file = File::find($id);
                 if ($file) {
-                    $file->delete();
+                    $file->moveToTrash();
                 }
             }
         }
@@ -214,6 +221,28 @@ class FileController extends Controller
 
             // dump($ancestors . $file->name);
         }
+    }
+
+    
+    public function deleteForever(){
+
+    }
+
+    public function restore(TrashFileRequest $request){
+        $data = $request->validated();
+        if($data['all']){
+            $children = File::onlyTrashed()->get();
+            foreach ($children as $child) {
+                $child->restore();
+            }
+        }else{
+            $ids = $data['ids'] ?? [];
+            $children = File::onlyTrashed()->whereIn('id', $ids)->get();
+            foreach ($children as $child) {
+                $child->restore();
+            }
+        }
+        return redirect()->route('folder.trash');
     }
 
     public function getBoot()
