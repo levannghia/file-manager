@@ -30,13 +30,13 @@
                     Only Favourites
                     <!-- <Checkbox @change="showOnlyFavourites"  v-model:checked="onlyFavourites" class="ml-2"/> -->
                 </label>
-                <!-- <ShareFilesButton :all-selected="allSelected" :selected-ids="selectedIds" />
-                <DownloadFilesButton :all="allSelected" :ids="selectedIds" class="mr-2"/> -->
+                <!-- <ShareFilesButton :all-selected="allSelected" :selected-ids="selectedIds" /> -->
+                <DownloadFilesButton :all="allSelected" :ids="selectedIds" class="mr-2"/>
                 <DeleteFilesButton :delete-all="allSelected" :delete-ids="selectedIds" @delete="onDelete"/>
             </div>
         </nav>
         <div class="flex-1 overflow-auto">
-            <pre>{{selectedIds}}</pre>
+            <!-- <pre>{{selected}}</pre> -->
             <table class="min-w-full">
                 <thead class="bg-gray-100 border-b">
                 <tr>
@@ -125,6 +125,7 @@ import { ref, onUpdated, onMounted, computed } from 'vue';
 import {httpGet, httpPost} from "@/Helper/http-helper";
 import Checkbox from "@/Components/Checkbox.vue";
 import DeleteFilesButton from "@/Components/app/DeletedFilesButton.vue";
+import DownloadFilesButton from "@/Components/app/DownloadFilesButton.vue";
 import FileIcon from "@/Components/app/FileIcon.vue";
 
 const page = usePage();
@@ -184,8 +185,6 @@ function openFolder(file){
 }
 
 function loadMore() {
-    console.log("Load more");
-
     if (allFiles.value.next === null) {
         return
     }
@@ -197,7 +196,8 @@ function loadMore() {
 }
 
 function onDelete(){
-    
+    allSelected.value = false
+    selected.value = {}
 }
 
 // Hooks

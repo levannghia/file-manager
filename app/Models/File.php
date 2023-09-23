@@ -53,10 +53,10 @@ class File extends Model
             $model->path = (!$model->parent->isRoot() ? $model->parent->path . '/' : '') . Str::slug($model->name);
         });
 
-        static::deleted(function($model){
-            if(!$model->is_folder){
-                Storage::delete($model->storage_path);
-            }
-        });
+        // static::deleted(function($model){
+        //     if(!$model->is_folder){
+        //         Storage::delete($model->storage_path);
+        //     }
+        // });
     }
 }
