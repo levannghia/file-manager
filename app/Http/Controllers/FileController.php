@@ -8,6 +8,8 @@ use App\Http\Requests\StoreFolderRequest;
 use App\Http\Requests\TrashFileRequest;
 use App\Http\Resources\FileResource;
 use App\Models\File;
+use App\Models\StarredFile;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -44,9 +46,12 @@ class FileController extends Controller
         return Inertia::render('MyFiles', compact('files', 'folder', 'ancestors'));
     }
 
-    public function trash(){
+    public function trash(Request $request){
         $files = File::onlyTrashed()->where('created_by', Auth::id())->orderBy('is_folder', 'desc')->orderBy('deleted_at', 'desc')->paginate(12);
         $files = FileResource::collection($files);
+        if ($request->wantsJson()) {
+            return $files;
+        }
         return Inertia::render('Trash', compact('files'));
     }
 
@@ -224,8 +229,21 @@ class FileController extends Controller
     }
 
     
-    public function deleteForever(){
-
+    public function deleteForever(TrashFileRequest $request){
+        $data = $request->validated();
+        if($data['all']){
+            $children = File::onlyTrashed()->get();
+            foreach ($children as $child) {
+                $child->deleteForever();
+            }
+        }else{
+            $ids = $data['ids'] ?? [];
+            $children = File::onlyTrashed()->whereIn('id', $ids)->get();
+            foreach ($children as $child) {
+                $child->deleteForever();
+            }
+        }
+        return redirect()->route('folder.trash');
     }
 
     public function restore(TrashFileRequest $request){
@@ -243,6 +261,45 @@ class FileController extends Controller
             }
         }
         return redirect()->route('folder.trash');
+    }
+
+    public function addToFavourites(FileActionRequest $request){
+        $data = $request->validated();
+        $parent = $request->parent;
+        $all = $data['all'] ?? false;
+        $ids = $data['ids'] ?? [];
+
+        if(!$all && empty($ids)){
+            return [
+                "message" => "Please select files to download"
+            ];
+        }
+
+        if($all){
+            $children = $parent->children;
+        }else{
+            $children = File::find($ids);
+        }
+
+        $dataInsert = [];
+
+        foreach ($children as $child) {
+            $dataInsert[] = [
+                'file_id' => $child->id,
+                'user_id' => Auth::id(),
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now()
+            ];
+        }
+
+        // dd($dataInsert);
+
+        if(StarredFile::insert($dataInsert)){
+            return redirect()->back();
+        }else{
+            dd("Loi");
+        }
+
     }
 
     public function getBoot()
