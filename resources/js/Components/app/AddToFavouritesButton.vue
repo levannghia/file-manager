@@ -48,7 +48,7 @@ const props = defineProps({
 
 function onClick() {
     if (!props.allSelected && !props.selectedIds.length) {
-        showErrorDialog('Please select at least one file to restore')
+        showErrorDialog('Please select at least one file to favourites')
         return
     }
 
