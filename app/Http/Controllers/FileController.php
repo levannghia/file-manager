@@ -29,10 +29,10 @@ class FileController extends Controller
             $folder = $this->getBoot();
         }
 
-        $files = File::query()->where('parent_id', $folder->id)
-            ->where('created_by', Auth::id())
+        $files = File::query()->where('parent_id', $folder->id)->with(['starred'])
+            ->where('files.created_by', Auth::id())
             ->orderBy('is_folder', 'desc')
-            ->orderBy('created_at', 'desc')
+            ->orderBy('files.created_at', 'desc')
             ->paginate(12);
         $files = FileResource::collection($files);
 
@@ -228,7 +228,7 @@ class FileController extends Controller
         }
     }
 
-    
+
     public function deleteForever(TrashFileRequest $request){
         $data = $request->validated();
         if($data['all']){

@@ -24,6 +24,10 @@ class File extends Model
         return $this->belongsTo(File::class, 'parent_id');
     }
 
+    public function starred(){
+        return $this->hasOne(StarredFile::class, 'file_id', 'id')->where('user_id', Auth::id());
+    }
+
     public function getOwnerAttribute($value)
     {
         return $this->attributes['created_by'] == Auth::id() ? 'me' : $this->user->name;
@@ -71,7 +75,7 @@ class File extends Model
         $this->forceDelete();
     }
 
-    public function deleteFileFromStorage($files){
+    public function deleteFileFromStorage(Array $files){
         foreach ($files as $file) {
             if($file->is_folder){
                 $this->deleteFileFromStorage($file->children);

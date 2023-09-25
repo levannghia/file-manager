@@ -72,7 +72,8 @@
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 w-[30px] max-w-[30px] pr-0">
                         <Checkbox @change="$event => onSelectCheckboxChange(file)" :checked="selected[file.id] || allSelected" v-model="selected[file.id]"/>
                     </td>
-                    <td class="px-6 py-4 max-w-[40px] text-sm font-medium text-gray-900">
+                    <td class="px-6 py-4 max-w-[40px] text-sm font-medium"
+                    :class="file.is_favourite ? 'text-yellow-500' : 'text-gray-900'">
                         <div>
                             <svg v-if="!file.is_favourite" xmlns="http://www.w3.org/2000/svg" fill="none"
                                  viewBox="0 0 24 24" stroke-width="1.5"
@@ -173,7 +174,7 @@ function onSelectCheckboxChange(file){
                 break;
             }
         }
-
+        
         allSelected.value = checked
     }
 }
