@@ -39,6 +39,7 @@ import InputLabel from "@/Components/InputLabel.vue";
 import {useForm, usePage} from "@inertiajs/vue3";
 import SecondaryButton from "@/Components/SecondaryButton.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
+import { showSuccessNotification } from "@/event-bus";
 
 const folderNameInput = ref(null)
 const page = usePage()
@@ -65,14 +66,18 @@ function onShow() {
 
 function createFolder() {
     form.parent_id = page.props.folder.id
+    let name = form.name;
     form.post(route('folder.create'), {
         preserveScroll: true,
         onSuccess: () => {
             closeModal();
+            showSuccessNotification(`The folder "${name}" was created`)
             form.reset();
         },
         onError: () => {
-            folderNameInput.value.focus();
+            nextTick(() => {
+                folderNameInput.value.focus();
+            })
         }
     })
 }

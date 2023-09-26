@@ -4,12 +4,15 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\AddFavouritsRequest;
 use App\Http\Requests\FileActionRequest;
+use App\Http\Requests\ShareFilesRequest;
 use App\Http\Requests\StoreFileRequest;
 use App\Http\Requests\StoreFolderRequest;
 use App\Http\Requests\TrashFileRequest;
 use App\Http\Resources\FileResource;
 use App\Models\File;
+use App\Models\FileShare;
 use App\Models\StarredFile;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -273,6 +276,47 @@ class FileController extends Controller
             }
         }
         return redirect()->route('folder.trash');
+    }
+
+    public function share(ShareFilesRequest $request){
+        $data = $request->validated();
+        $parent = $request->parent;
+        $all = $data['all'] ?? false;
+        $email = $data['email'];
+        $ids = $data['ids'] ?? [];
+
+        if(!$all && empty($ids)){
+            return [
+                'message' => 'Please select files to share'
+            ];
+        }
+
+        $user = User::query()->where('email', $email)->first();
+
+        if(!$user){
+            return redirect()->back();
+        }
+
+        $dataInsert = [];
+
+        if($all){
+            $files = $parent->children;
+        }else{
+            $files = File::find($ids);
+        }
+
+        foreach ($files as $file) {
+            $dataInsert[] = [
+                "file_id" => $file->id,
+                "user_id" => $user->id,
+                "created_at" => Carbon::now(),
+                "updated_at" => Carbon::now()
+            ];
+        }
+
+        FileShare::insert($dataInsert);
+
+        return redirect()->back();
     }
 
     public function addToFavourites(AddFavouritsRequest $request)
