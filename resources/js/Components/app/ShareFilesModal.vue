@@ -80,6 +80,7 @@ function share(){
         preserveScroll: true,
         onSuccess: () => {
             closeModal();
+            form.reset();
             showSuccessNotification(`Selected files will be shared to "${email}" if the emails exists in the system`);
         },
         onError: () => emailInput.value.forcus()

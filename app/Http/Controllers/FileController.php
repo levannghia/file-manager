@@ -9,13 +9,16 @@ use App\Http\Requests\StoreFileRequest;
 use App\Http\Requests\StoreFolderRequest;
 use App\Http\Requests\TrashFileRequest;
 use App\Http\Resources\FileResource;
+use App\Mail\SharedFileMail;
 use App\Models\File;
 use App\Models\FileShare;
 use App\Models\StarredFile;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
@@ -40,7 +43,7 @@ class FileController extends Controller
             ->orderBy('is_folder', 'desc')
             ->orderBy('files.created_at', 'desc')
             ->orderBy('files.id', 'desc');
-        
+
         if($favourites === 1){
             $query->join('starred_files', 'starred_files.file_id', 'files.id')->where('starred_files.user_id', Auth::id());
         }
@@ -305,7 +308,16 @@ class FileController extends Controller
             $files = File::find($ids);
         }
 
+        $ids = Arr::pluck($files, 'id');
+        // dd($ids);
+        $existingFilesId = FileShare::query()->whereIn('file_id', $ids)->where('user_id', $user->id)->get()->keyBy('file_id');
+        // dd($existingFilesId);
+
         foreach ($files as $file) {
+            if($existingFilesId->has($file->id)){
+                continue;
+            }
+
             $dataInsert[] = [
                 "file_id" => $file->id,
                 "user_id" => $user->id,
@@ -315,7 +327,7 @@ class FileController extends Controller
         }
 
         FileShare::insert($dataInsert);
-
+        Mail::to($user)->send(new SharedFileMail($user, Auth::user(), $files));
         return redirect()->back();
     }
 
