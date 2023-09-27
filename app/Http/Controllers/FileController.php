@@ -354,6 +354,46 @@ class FileController extends Controller
         return redirect()->back();
     }
 
+    public function sharedWithMe(Request $request){
+        $files = File::query()->select('files.*')
+        ->join('file_shares', 'file_shares.file_id', 'files.id')
+        ->where('file_shares.user_id', Auth::id())
+        ->orderBy('files.is_folder', 'desc')
+        ->orderBy('file_shares.created_at', 'desc')
+        ->orderBy('files.id', 'desc')
+        ->paginate(12);
+        $files = FileResource::collection($files);
+        if ($request->wantsJson()) {
+            return $files;
+        }
+        // dd($files);
+        return Inertia::render('SharedWithMe', compact('files'));
+    }
+
+    public function sharedByMe(Request $request)
+    {
+        $search = $request->get('search');
+        $query = File::query()->select('files.*')
+        ->join('file_shares', 'file_shares.file_id', 'files.id')
+        ->where('files.created_by', Auth::id())
+        ->orderBy('files.is_folder', 'desc')
+        ->orderBy('file_shares.created_at', 'desc')
+        ->orderBy('files.id', 'desc');
+
+        // if ($search) {
+        //     $query->where('name', 'like', "%$search%");
+        // }
+
+        $files = $query->paginate(12);
+        $files = FileResource::collection($files);
+
+        if ($request->wantsJson()) {
+            return $files;
+        }
+
+        return Inertia::render('SharedByMe', compact('files'));
+    }
+
     public function getBoot()
     {
         return File::query()->whereIsRoot()->where('created_by', Auth::id())->firstOrFail();
