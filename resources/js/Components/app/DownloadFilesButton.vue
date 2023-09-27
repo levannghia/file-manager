@@ -17,13 +17,6 @@ import {httpGet} from "@/Helper/http-helper.js";
 
 // Uses
 const page = usePage();
-
-// Refs
-const form = useForm({
-    all: null,
-    ids: [],
-    parent_id: null
-})
 // Props & Emit
 const props = defineProps({
     all: {
@@ -35,8 +28,8 @@ const props = defineProps({
         type: Array,
         required: false
     },
-    // sharedWithMe: false,
-    // sharedByMe: false,
+    sharedWithMe: false,
+    sharedByMe: false,
 })
 
 // Computed
@@ -58,8 +51,16 @@ function download() {
             p.append('ids[]',props.ids[i]);
         }
     }
-    form.parent_id = page.props.folder.id;
-    httpGet(route('file.download') + '?' + p.toString()).then(res => {
+
+    let url = route('file.download');
+
+    if(props.sharedWithMe){
+        url = route('file.download.shared.with.me');
+    }else if(props.sharedByMe){
+        url = route('file.download.shared.by.me')
+    }
+
+    httpGet(url + '?' + p.toString()).then(res => {
         console.log(res)
         if(!res.url){
             return;

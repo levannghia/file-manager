@@ -3,7 +3,7 @@
     <AuthenticatedLayout>
         <nav class="flex items-center justify-end p-1 mb-3">
             <div>
-                <!-- <DownloadFilesButton :all="allSelected" :ids="selectedIds" class="mr-2" :shared-with-me="true"/> -->
+                <DownloadFilesButton :all="allSelected" :ids="selectedIds" class="mr-2" :shared-with-me="true"/>
             </div>
         </nav>
         <div class="flex-1 overflow-auto">
@@ -83,9 +83,6 @@ const selectedIds = computed(() => Object.entries(selected.value).filter(a => a[
 
 // Methods
 function loadMore() {
-    console.log("load more");
-    console.log(allFiles.value.next);
-
     if (allFiles.value.next === null) {
         return
     }

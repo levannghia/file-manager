@@ -39,6 +39,8 @@ Route::controller(FileController::class)->middleware(['auth', 'verified'])->grou
     Route::get('/file/share-with-me', 'sharedWithMe')->name('file.share.with.me');
     Route::get('/file/share-by-me', 'sharedByMe')->name('file.share.by.me');
     Route::get('/file/download', 'download')->name('file.download');
+    Route::get('/file/download-shared-with-me', 'downloadSharedWithMe')->name('file.download.shared.with.me');
+    Route::get('/file/download-shared-by-me', 'downloadSharedByMe')->name('file.download.shared.by.me');
 });
 
 Route::get('/dashboard', function () {
