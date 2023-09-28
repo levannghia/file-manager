@@ -23,6 +23,7 @@ return new class extends Migration
             $table->boolean('is_folder');
             $table->string('mime')->nullable();
             $table->integer('size')->nullable();
+            $table->boolean('uploaded_on_cloud')->default(1);
             $table->timestamps();
             $table->foreignIdFor(User::class, 'created_by');
             $table->foreignIdFor(User::class, 'updated_by');
