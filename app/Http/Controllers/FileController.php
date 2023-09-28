@@ -426,7 +426,13 @@ class FileController extends Controller
     }
 
     public function sharedWithMe(Request $request){
+        $search = $request->get('search');
         $query = File::getSharedWithMe();
+
+        if ($search) {
+            $query->where('name', 'like', "%$search%");
+        }
+        
         $files = $query->paginate(12);
         $files = FileResource::collection($files);
         if ($request->wantsJson()) {
@@ -441,9 +447,9 @@ class FileController extends Controller
         $search = $request->get('search');
         $query = File::getSharedByMe();
 
-        // if ($search) {
-        //     $query->where('name', 'like', "%$search%");
-        // }
+        if ($search) {
+            $query->where('name', 'like', "%$search%");
+        }
 
         $files = $query->paginate(12);
         $files = FileResource::collection($files);
