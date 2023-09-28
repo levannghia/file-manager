@@ -432,7 +432,7 @@ class FileController extends Controller
         if ($search) {
             $query->where('name', 'like', "%$search%");
         }
-        
+
         $files = $query->paginate(12);
         $files = FileResource::collection($files);
         if ($request->wantsJson()) {
@@ -463,6 +463,6 @@ class FileController extends Controller
 
     public function getBoot()
     {
-        return File::query()->whereIsRoot()->where('created_by', Auth::id())->firstOrFail();
+        return File::query()->whereIsRoot()->where('created_by', Auth::id())->first();
     }
 }
