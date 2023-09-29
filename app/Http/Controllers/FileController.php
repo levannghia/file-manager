@@ -9,6 +9,7 @@ use App\Http\Requests\StoreFileRequest;
 use App\Http\Requests\StoreFolderRequest;
 use App\Http\Requests\TrashFileRequest;
 use App\Http\Resources\FileResource;
+use App\Jobs\UploadFileToCloudJob;
 use App\Mail\SharedFileMail;
 use App\Models\File;
 use App\Models\FileShare;
@@ -136,14 +137,18 @@ class FileController extends Controller
 
     public function saveFile($file, $parent, $user)
     {
-        $path = $file->store('/files/' . $user->id);
+        $path = $file->store('/files/' . $user->id, 'local');
         $model = new File();
         $model->storage_path = $path;
         $model->is_folder = false;
         $model->name = $file->getClientOriginalName();
         $model->mime = $file->getMimeType();
         $model->size = $file->getSize();
+        $model->uploaded_on_cloud = 0;
         $parent->appendNode($model);
+
+        //To do start backgoround job upload file
+        UploadFileToCloudJob::dispatch($model);
     }
 
     public function download(FileActionRequest $request)
