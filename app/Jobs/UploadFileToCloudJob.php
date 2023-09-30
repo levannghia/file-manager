@@ -23,7 +23,7 @@ class UploadFileToCloudJob implements ShouldQueue
      */
     public function __construct(protected File $file)
     {
-        
+
     }
 
     /**
@@ -41,6 +41,8 @@ class UploadFileToCloudJob implements ShouldQueue
                 $success = Storage::put($model->storage_path, Storage::disk('local')->get($model->storage_path));
                 if($success){
                     Log::debug("Uploaded. Updating the database");
+                    $model->uploaded_on_cloud = 1;
+                    $model->saveQuietly();
                 }else{
                     Log::debug('Unable to upload file to S3');
                 }
