@@ -8,6 +8,9 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
+use Kreait\Firebase\Factory;
+use Kreait\Firebase\Messaging\CloudMessage;
+use Kreait\Firebase\Messaging\Notification;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -16,6 +19,28 @@ class ProfileController extends Controller
     /**
      * Display the user's profile form.
      */
+
+    public function pushNotification()
+    {
+        $factory = (new Factory)
+            ->withServiceAccount(storage_path('files/dd2u-7a899-firebase-adminsdk-19dmb-c38542f8e9.json'));
+
+        $messaging = $factory->createMessaging();
+
+        // Send a notification to a device with a given registration token
+        $message = CloudMessage::withTarget('token', 'registration_token')
+            ->withNotification(Notification::create('Title', 'Body'));
+
+        if($messaging->send($message)){
+            return response()->json([
+                "message" => "Thanh Cong"
+            ], 200);
+        }
+
+        return response()->json([
+            "message" => "That bai"
+        ], 500);
+    }
 
     public function test()
     {
@@ -50,13 +75,13 @@ class ProfileController extends Controller
             $parts = explode('/', $value);
             $currentNode = &$tree;
             foreach ($parts as $i => $part) {
-                if(!isset($currentNode[$part])){
+                if (!isset($currentNode[$part])) {
                     $currentNode[$part] = [];
                 }
 
-                if($i === count($parts) - 1){
+                if ($i === count($parts) - 1) {
                     $currentNode[$part] = $files[$key];
-                }else{
+                } else {
                     $currentNode = &$currentNode[$part];
                 }
             }
